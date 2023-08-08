@@ -17,8 +17,8 @@ import java.net.Socket;
 public class PaymentServer {
     private static JLabel imageLabel;
     private static final int port = 8000;
-    private static final int response_port = 8888;
-    private static final String server_ip = "192.168.1.181";
+    private static final int response_port = 8001;
+    private static final String server_ip = "192.168.1.197"; //android cihazın ipsi
 
     public static void main(String[] args) {
         //arayüz işlemleri
@@ -152,6 +152,8 @@ public class PaymentServer {
             socket.close();
 
         } catch (IOException e) {
+            System.err.println("IOException: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
