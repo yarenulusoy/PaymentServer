@@ -9,19 +9,19 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 
 public class PaymentServer {
     private static JLabel imageLabel;
+    private static final int port = 8000;
+    private static final int response_port = 8888;
+    private static final String server_ip = "192.168.1.181";
 
     public static void main(String[] args) {
-        int port = 443;
+        //arayüz işlemleri
         JFrame frame = new JFrame("Payment Server");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 800);
@@ -29,28 +29,30 @@ public class PaymentServer {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
 
+
         imageLabel = new JLabel();
         panel.add(imageLabel);
-
-        JButton submitButton = new JButton("Gönder");
-        panel.add(submitButton);
 
         frame.add(panel);
         frame.setVisible(true);
 
+        JButton submitButton = new JButton("Gönder");
+        panel.add(submitButton);
+
+        //gondere basınca istemciye yanıt gonderir
         submitButton.addActionListener(e -> {
             sendResponseToClient();
         });
 
         try {
+            //socket işlemleri ile istemciden yanıt alma
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("PaymentServer is listening on port " + port);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Connected to a client.");
                 InputStreamReader inputStreamReader = new InputStreamReader(clientSocket.getInputStream());
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader); //get the client message
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
                 String message = bufferedReader.readLine();
 
@@ -72,10 +74,9 @@ public class PaymentServer {
             String paymentType = jsonObject.getString("PaymentType");
             String qrContent = jsonObject.getString("Content");
             if (paymentType.equals("QRCode")) {
-
-                generateAndDisplayQRCode(qrContent);
+                generateAndDisplayQRCode(qrContent); //verilerle qr code olusturma
             } else {
-                generateAmountImage(qrContent);
+                generateAmountImage(qrContent); //ima üzerine amount bilgisi
 
             }
         } catch (JSONException e) {
@@ -90,7 +91,6 @@ public class PaymentServer {
         try {
             String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "creditCard.png";
             BufferedImage resourceImage = ImageIO.read(new File(filePath));
-            ;
 
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
@@ -141,8 +141,20 @@ public class PaymentServer {
 
 
     private static void sendResponseToClient() {
-        // Yanıtı istemciye gönder
-        String response = "{\"ResponseCode\":\"00\"}";
+        try {
+            String response = "{\"ResponseCode\":\"00\"}";
+            Socket socket = new Socket(server_ip, response_port);
+            OutputStream outputStream = socket.getOutputStream();
+            PrintWriter writer = new PrintWriter(outputStream, true);
+            writer.println(response);
+            writer.flush();
+            outputStream.close();
+            socket.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 
