@@ -16,9 +16,9 @@ import java.net.Socket;
 
 public class PaymentServer {
     private static JLabel imageLabel;
-    private static final int port = 8000;
-    private static final int response_port = 8001;
-    private static final String server_ip = "192.168.1.197"; //android cihazın ipsi
+    private static final int port = 7000;
+    private static final int response_port = 7001;
+    private static final String server_ip= "192.168.1.107";
 
     public static void main(String[] args) {
         //arayüz işlemleri
@@ -143,17 +143,16 @@ public class PaymentServer {
     private static void sendResponseToClient() {
         try {
             String response = "{\"ResponseCode\":\"00\"}";
-            Socket socket = new Socket(server_ip, response_port);
+            Socket socket = new Socket(server_ip,response_port);
             OutputStream outputStream = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(outputStream, true);
             writer.println(response);
             writer.flush();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             outputStream.close();
             socket.close();
 
         } catch (IOException e) {
-            System.err.println("IOException: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
