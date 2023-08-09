@@ -17,8 +17,7 @@ import java.net.Socket;
 public class PaymentServer {
     private static JLabel imageLabel;
     private static final int port = 7000;
-    private static final int response_port = 7001;
-    private static final String server_ip= "192.168.1.137"; //android cihaz ip
+    private static Socket clientSocket;
 
     public static void main(String[] args) {
         //arayüz işlemleri
@@ -49,7 +48,7 @@ public class PaymentServer {
             ServerSocket serverSocket = new ServerSocket(port);
 
             while (true) {
-                Socket clientSocket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
                 System.out.println("Connected to a client.");
                 InputStreamReader inputStreamReader = new InputStreamReader(clientSocket.getInputStream());
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -59,8 +58,8 @@ public class PaymentServer {
                 System.out.println(message);
                 processRequest(message);
 
-                inputStreamReader.close();
-                clientSocket.close();
+                // inputStreamReader.close();
+                //  clientSocket.close();
                 System.out.println("Client disconnected.");
             }
         } catch (IOException e) {
@@ -143,14 +142,10 @@ public class PaymentServer {
     private static void sendResponseToClient() {
         try {
             String response = "{\"ResponseCode\":\"00\"}";
-            Socket socket = new Socket(server_ip,response_port);
-            OutputStream outputStream = socket.getOutputStream();
+            OutputStream outputStream = clientSocket.getOutputStream();
             PrintWriter writer = new PrintWriter(outputStream, true);
             writer.println(response);
             writer.flush();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            outputStream.close();
-            socket.close();
 
         } catch (IOException e) {
             throw new RuntimeException(e);
