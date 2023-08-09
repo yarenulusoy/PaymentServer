@@ -18,7 +18,7 @@ public class PaymentServer {
     private static JLabel imageLabel;
     private static final int port = 7000;
     private static final int response_port = 7001;
-    private static final String server_ip= "192.168.1.107";
+    private static final String server_ip= "192.168.1.137"; //android cihaz ip
 
     public static void main(String[] args) {
         //arayüz işlemleri
